@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}{{  specific['name'] }}{% endblock %}
+
+{% block content %}
+
+<h1> {{ specific['name'] }}</h1>
+<img src="{{ url_for('static', filename=specific['image_path']) }}" alt="">
+<h2> {{specific['summary'] }}</h2>
+<p>{{ specific['description'] }}</p>
+
+<ul>
+    <li>
+        <p>Quantity availible: {{ specific['quantity'] }}</p>
+    </li>
+    <li>
+        <p>Price: ${{ specific['daily_rental_price'] }}</p>
+    </li>
+    <li>
+        <p>Weight: {{ specific['weight'] }} lbs</p>
+    </li>
+    <li>
+        <p>Notes: {{ specific['notes'] }}</p>
+    </li>
+</ul>
+{% endblock %}

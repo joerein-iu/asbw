@@ -3,19 +3,24 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<h1 class="display-4">Hello Flask!</h1>
+<div class="row"></div>
+<div class="column">
+    <div class="col-12 col-me-6 col-lg-4 col-xl-3">
+        <h1>Adventure Outfitters</h1>
+        <p> Adventure outfitters has been preparing our members for adventures since 2005. We maintain the highest of standards, and test our equpitment in real enviornments. When you adventure with us: You're gonna like the way you adventure, I assure it.</p>
+        <a href="{{url_for('render_equipment')}}">
+            <button class="btn btn-primary" value="equipment">Equipment</button>
+        </a>
+        <a href="{{url_for('render_people')}}">
+            <button class="btn btn-primary" value="people">People</button>
+        </a>
+    </div>
+</div>
+<div class="column">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Capybara_portrait.jpg/1200px-Capybara_portrait.jpg?20140423185251" alt=""
+    style="width: 200px;height: 150px;">
+</div>
+</div>
 
-<p class="lead">This is a template to get you spinning up with <code>flask</code> and <code>Bootstrap</code>.</p>
-
-<img class="img-fluid" src="{{ url_for('static', filename='images/doing-great.jpg') }}"
-    alt="A giant person blocks a little guy from arrows. The giant says 'you're doing great and im so freaken proud of you', the little guy is labeled 'undergrads'">
-
-<p>
-    This is based on the Bootstrap "<em>Sticky Footer Navbar Template</em>", don't forget to <a
-        href="https://getbootstrap.com/docs/5.3/examples/sticky-footer-navbar/">skim how the example works</a> in the
-    documentation!
-</p>
-
-<p>Remember to <em>read your README</em>, it has lots of hints that will help you throughout the semester.</p>
 
 {% endblock %}
