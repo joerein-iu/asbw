@@ -1,0 +1,8 @@
+name,summary,description,daily_rental_price,quantity,weight,image_path,purchase_date,notes
+"Backpack","A Trusty Backpack.","The best backpack ever assembled",30,10,2,"images/backpack.jpg","2024-3-7","Front zipper broken"
+"Tent","Reliable Camping Tent","Spacious and durable tent for all weather conditions",40,5,8,"images/four_person_tent.jpg","2024-3-6","Minor wear on stakes"
+"Sleeping Bag","Cozy Sleeping Bag","Warm and comfortable sleeping bag suitable for cold climates",20,8,3,"images/four_person_tent.jpg","2024-3-5","Small tear patched"
+"Camping Stove","Portable Camping Stove","Compact and efficient stove for outdoor cooking",15,12,1,"images/null_image.jpg","2024-3-4","Needs extra fuel canisters"
+"Hiking Boots","Sturdy Hiking Boots","Waterproof and comfortable hiking boots for long treks",25,7,4,"images/null_image.jpg","2024-3-3","Slight tread wear"
+"Flashlight","Bright LED Flashlight","High-power flashlight with long battery life",10,15,0.5,"images/aluminium_walking_stick.jpg","2024-3-2","Batteries not included"
+"Mountain Bike","All-Terrain Mountain Bike","Robust mountain bike designed for challenging trails",50,3,15,"images/null_image.jpg","2024-3-1","Regular maintenance required"

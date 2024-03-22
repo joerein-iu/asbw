@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Equipment{% endblock %}
+
+{% block content %}
+<h1>Equipment</h1>
+<p class="lead">Browse our equipment</p>
+<div class="row">
+    {% for item in equipment %}
+    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+        <div class="card mb-3" style="width: 18rem">
+            <img class="card-img-top my-3" src="{{ url_for('static', filename=equipment[item]['image_path'])}}">
+            <div class="card-body">
+                <h2>{{ equipment[item]['name'] }}</h2>
+                <p>{{ equipment[item]['description'][:20] + "..." }}</p>
+                <a href="{{ url_for('render_equipment', eid=item) }}" class="btn btn-primary">View Item</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
