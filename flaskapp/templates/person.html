@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}{{  person['name'] }}{% endblock %}
+
+{% block content %}
+
+<h1> {{ person['name'] }}</h1>
+<ul>
+    <li>{{ person['name']}}</li>
+    <li>{{ person['email'] }}</li>
+    <li>{{ person['date_of_birth'] }}</li>
+    <li>{{ person['mobile_phone_number'] }}</li>
+    <li>{{ person['role'] }}</li>
+</ul>   
+{% endblock %}

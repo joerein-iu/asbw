@@ -43,9 +43,14 @@ def load_people():
 def render_index():
     return render_template("index.html")
 
+
 @app.route("/people/")
-def render_people():
-    return render_template("people.html")
+@app.route("/person/<pid>")
+def render_people(pid=None):
+    people = load_people()
+    if pid and pid in people.keys():
+        return render_template("person.html", person=people[pid])
+    return render_template("people.html", people=people)
 
 @app.route("/equipment/")
 @app.route("/specific/<eid>")

@@ -5,5 +5,28 @@
 {% block content %}
 
 <h1>People</h1>
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Date of Birth</th>
+        <th>Phone Number</th>
+        <th>Role</th>
+    </tr>
+    {% for item in people %}
+    <tr>
+        <td>
+            <a href="{{ url_for('render_people', pid=item) }}">
+                {{ people[item]['name'] }}
+            </a>
+        </td>
+        <td>{{ people[item]['email'] }}</td>
+        <td>{{ people[item]['date_of_birth'] }}</td>
+        <td>{{ people[item]['mobile_phone_number'] }}</td>
+        <td>{{ people[item]['role'] }}</td>
+    </tr>
+    {%endfor%}
+
+</table>
 
 {% endblock %}
