@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Person{% endblock %}
+
+{% block content %}
+
+<form name="add_equipment" method="POST">
+    <label for="name">Name</label>
+    <input type="text" id="name" name="name" value="{{ equipment['name'] if equipment else '' }}"><br>
+    <label for="summary">Summary</label>
+    <input type="text" id="summary" name="summary" value="{{ equipment['summary'] if equipment else '' }}"><br>
+    <label for="description">Description</label>
+    <input type="text" id="description" name="description" value="{{ equipment['description'] if equipment else '' }}"><br>
+    <label for="daily_rental_price">Daily Rental Price</label>
+    <input type="number" name="price" id="price" value="{{ equipment['daily_rental_price'] if equipment else 0 }}"><br>
+    <label for="weight">Weight</label>
+    <input type="number" name="weight" id="weight" value="{{ equipment['weight'] if equipment else 0 }}"><br>
+    <label for="purchase_date">Purchase Date</label>
+    <input type="date" name="purchase_date" id="purchase_date" value="{{ equipment['purchase_date'] if equipment else '' }}"><br>
+    <label for="quantity">Quantity</label>
+    <input type="number" name="quantity" id="quantity" value="{{ equipment['quantity'] if equipment else 0 }}"><br>
+    <label for="notes">Notes</label>
+    <input type="text" name="notes" id="notes" value="{{ equipment['notes'] if equipment else '' }}"><br>
+    <input type="submit" value="Save Equipment">
+    <input type="reset">
+</form>
+
+{% endblock %}
+ 

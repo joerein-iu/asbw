@@ -25,8 +25,10 @@
         <td>{{ people[item]['mobile_phone_number'] }}</td>
         <td>{{ people[item]['role'] }}</td>
     </tr>
+
     {%endfor%}
 
 </table>
+<a href="{{ url_for('add_person') }}" class="btn btn-primary">Add a Person</a>
 
 {% endblock %}

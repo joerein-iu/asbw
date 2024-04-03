@@ -23,4 +23,5 @@
         <p>Notes: {{ specific['notes'] }}</p>
     </li>
 </ul>
+<a href="{{ url_for('add_equipment', eid=specific['name']) }}" class="btn btn-primary">Edit Details</a>
 {% endblock %}
