@@ -12,4 +12,5 @@
     <li>{{ person['mobile_phone_number'] }}</li>
     <li>{{ person['role'] }}</li>
 </ul>   
+<a href="{{ url_for('add_person', pid=person['name']) }}" class="btn btn-primary">Edit Details</a>
 {% endblock %}
