@@ -3,21 +3,28 @@
 {% block title %}Equipment{% endblock %}
 
 {% block content %}
+
 <h1>Equipment</h1>
-<p class="lead">Browse our equipment</p>
-<div class="row">
+
+<hr class="border-3">
+
+<a href="{{ url_for('render_add_equipment') }}" class="btn btn-primary mb-3">Add an item</a>
+
+<div class="row row-cols-1 row-cols-md-4 g-4">
     {% for item in equipment %}
-    <div class="col-12 col-md-6 col-lg-4 col-xl-3">
-        <div class="card mb-3" style="width: 18rem">
-            <img class="card-img-top my-3" src="{{ url_for('static', filename=equipment[item]['image_path'])}}">
+    <div class="col">
+        <div class="card h-100">
+            <img src="{{ url_for('static', filename=item['image_path']) }}" class="card-img-top" alt="{{ item['summary'] }}">
             <div class="card-body">
-                <h2>{{ equipment[item]['name'] }}</h2>
-                <p>{{ equipment[item]['description'][:20] + "..." }}</p>
-                <a href="{{ url_for('render_equipment', eid=item) }}" class="btn btn-primary">View Item</a>
+                <h5 class="card-title">{{ item['name'] }}</h5>
+                <p class="card-text">{{ item['summary'][:30] }} ...</p>
+            </div>
+            <div class="card-footer bg-transparent">
+                <a href="{{ url_for('render_one_item', item_id=item['id']) }}" class="btn btn-primary">Details</a>
             </div>
         </div>
     </div>
     {% endfor %}
-    <a href="{{ url_for('add_equipment') }}" class="btn btn-primary">Add Equipment</a>
 </div>
+
 {% endblock %}

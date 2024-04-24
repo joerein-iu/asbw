@@ -1,70 +1,55 @@
-# Copyright © 2023, Indiana University
+# Copyright © 2023-2024, Indiana University
 # BSD 3-Clause License
 
-from flask import Flask, render_template, request, redirect, url_for
-import csv
+import re
+from csv import DictReader, DictWriter
+from datetime import date
+from operator import itemgetter
+from random import randint
+from typing import Optional, List, Dict
+
+from flask import Flask, request, render_template, redirect, url_for
+import flaskapp.db as db
 
 
 app = Flask(__name__)
 
-equipKeys = [
-    "name",
-    "summary",
-    "description",
-    "daily_rental_price",
-    'weight',
-    'purchase_date',
-    'quantity',
-    'notes'
-]
 
-def load_people():
-    with open('people.csv') as csvfile:
-        contents=csv.DictReader(csvfile)
-        people={ row['name']: {'name' : row['name'], 'email':row['email'],
-                             'date_of_birth': row['date_of_birth'],
-                             'mobile_phone_number':row['mobile_phone_number'], 'role':row['role']
-        } for row in contents}
-        return people
+def validate_date(date_string: str) -> str:
+    """Return the string if it's in ISO format, or '' otherwise."""
+    try:
+        date.fromisoformat(date_string)
+    except ValueError:
+        return ""
+    return date_string
 
-def load_equipment():
-    with open('equipment.csv') as csvfile:
-        contents=csv.DictReader(csvfile)
-        equipment={ row['name']: {'name' : row['name'], 'summary':row['summary'],
-                             'description': row['description'], 'daily_rental_price' : row['daily_rental_price'],
-                             'quantity':row['quantity'],'weight':row['weight'],
-                             'image_path':row['image_path'], 'purchase_date':row['purchase_date'],
-                             'notes':row['notes']
-        } for row in contents}
-    return equipment
 
-def load_people():
-    with open('people.csv') as csvfile:
-        contents=csv.DictReader(csvfile)
-        people={ 
-            row['name']: {
-                'name' : row['name'], 'email':row['email'], 
-                'date_of_birth' : row['date_of_birth'], 'mobile_phone_number' : row["mobile_phone_number"],
-                'role' : row['role']
-        } for row in contents}
-    return people
+def validate_phone(phone_string: str) -> str:
+    """Return the 10 digits in a phone number, or '' otherwise."""
+    new_phone = re.sub("[^0-9]", "", phone_string)
+    if len(new_phone) != 10:
+        return ""
+    return new_phone
 
-def set_equipment(all_equipment):
-    equipKeys = ['name', 'summary', 'description', 'daily_rental_price', 'quantity', 'weight', 'image_path', 'purchase_date', 'notes']
-    with open('equipment.csv', mode='w', newline="") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=equipKeys)
-        writer.writeheader()
-        for equip in all_equipment.values():
-            writer.writerow(equip)
 
-def set_people(all_people):
-    with open('people.csv', mode='w', newline="") as csvfile:
-        fieldnames = ['name', 'email', 'date_of_birth', 'mobile_phone_number', 'role']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        for person in all_people.values():
-            writer.writerow(person)
-            
+def load_equipment() -> List[Dict[str, str]]:
+    """Return a list[dict] of the equipment sorted by name"""
+    return db.get_all_items()
+
+
+def load_item(item_id=Optional[str]) -> Optional[Dict[str, str]]:
+    """Return something or nothing using an item's id"""
+    return db.get_one_item(item_id)
+
+
+def load_people() -> List[Dict[str, str]]:
+    """Return a dictionary of people, sorted on `date_of_birth`"""
+    return db.get_people()
+
+
+def load_person(person_id=None) -> Optional[Dict[str, str]]:
+    """Load a person based on their id."""
+    return db.get_person(person_id)
 
 
 @app.route("/")
@@ -73,95 +58,97 @@ def render_index():
 
 
 @app.route("/people/")
-@app.route("/people/add/")
-@app.route("/person/<pid>")
-@app.route("/person/<pid>/edit")
-def render_people(pid=None):
-    people = load_people()
-    if pid and pid in people.keys():
-        return render_template("person.html", person=people[pid])
-    return render_template("people.html", people=people)
+def render_people_page():
+    return render_template("people.html", people=load_people())
+
+
+def inspect_person(person: Dict[str, str]) -> None:
+    """!mutates: any value that does not pass is replaced with empty string"""
+
+    person["date_of_birth"] = validate_date(person["date_of_birth"])
+    person["mobile_phone_number"] = validate_phone(person["mobile_phone_number"])
+
+    if person["role"] not in ("staff", "member"):
+        person["role"] = ""
+
+
+@app.route("/people/add/", methods=["GET", "POST"])
+def render_add_person():
+    if request.method == "GET":
+        return render_template("person_form.html", person=dict())
+
+    # POST
+    new_person = dict(request.form)
+
+    inspect_person(new_person)
+    if any(v == "" for v in new_person.values()):
+        # If any error occurred, tell the user to try again
+        return render_template("person_form.html", person=new_person, alert=True)
+
+    # We didn't re-render, so we can save a new copy of the CSV
+    # As an exercise: what *low-probability edge case* am I ignoring?
+    db.add_person(new_person)
+    return redirect(url_for("render_people_page"))
+
+
+@app.route("/people/<person_id>/edit/", methods=["GET", "POST"])
+def render_edit_person(person_id: Optional[str] = None):
+    if request.method == "GET":
+        return render_template(
+            "person_form.html", person_id=person_id, person=load_person(person_id)
+        )
+
+    # POST
+    updated_person = dict(request.form)
+    inspect_person(updated_person)
+
+    if any(v == "" for v in updated_person.values()):
+        return render_template("person_form.html", person_id=person_id, person=updated_person, alert=True)
+
+    # Validation success: Update the row with matching person_id
+    db.update_person(person_id,updated_person)
+
+    return redirect(url_for("render_one_person", person_id=person_id))
+
+
+@app.route("/people/<person_id>/")
+def render_one_person(person_id: Optional[str] = None):
+    return render_template("person.html", person_id=person_id, person=load_person(person_id))
+
 
 @app.route("/equipment/")
-@app.route("/equipment/add/")
-@app.route("/specific/<eid>")
-def render_equipment(eid=None):
-    equipment = load_equipment()
-    if eid and eid in equipment.keys():
-        return render_template('specific.html', specific=equipment[eid])
-    return render_template("equipment.html",equipment=equipment)
-
-@app.route("/add-equipment/", methods=['GET','POST'])
-@app.route("/specific/<eid>/edit", methods=['GET', 'POST'])
-def add_equipment(eid=None):
-    equip = load_equipment()
-    equipment_item = None
-    if eid and eid in equip.keys():
-        equip = equip[eid]
-    if request.method=="POST":
-        all_equip = load_equipment()
-        new_equipment = {}
-        new_equipment['name']  = request.form['name']
-        new_equipment['summary']  = request.form['summary']
-        new_equipment['description']  = request.form['description']
-        new_equipment['daily_rental_price']  = request.form['price']
-        new_equipment['weight'] = request.form['weight']
-        new_equipment['purchase_date']  = request.form['purchase_date'] 
-        new_equipment['image_path'] = "images/null_image.jpg"
-        new_equipment['quantity'] = request.form['quantity']
-        new_equipment['notes'] = request.form['notes']
-
-        all_equip[new_equipment['name']] = new_equipment
-
-        set_equipment(all_equip)
-
-        return redirect(url_for('render_equipment'))
-    else:
-        return render_template('item_form.html', equipment=equip)
-    
+def render_equipment_page():
+    return render_template("equipment.html", equipment=load_equipment())
 
 
-@app.route("/add-person/", methods=['GET', 'POST'])
-def add_person():
-    if request.method == "POST":
-        all_people = load_people()
-        new_person = {
-            'name': request.form['name'],
-            'email': request.form['email'],
-            'date_of_birth': request.form['dob'],
-            'mobile_phone_number': request.form['phone'],
-            'role': request.form['role']
-        }
-        
-        all_people[new_person['name']] = new_person  
-
-        set_people(all_people)
-        return redirect(url_for('render_people'))
-    else:
-        return render_template('person_form.html', person=None)
+@app.route("/equipment/<item_id>/")
+def render_one_item(item_id: Optional[str] = None):
+    return render_template("item.html", item_id=item_id, item=load_item(item_id))
 
 
-@app.route("/person/<pid>/edit", methods=['GET', 'POST'])
-@app.route("/person/<pid>/edit", methods=['GET', 'POST'])
-def edit_person(pid):
-    people = load_people()
-    person = people.get(pid)
+@app.route("/equipment/add/", methods=["GET", "POST"])
+def render_add_equipment():
+    if request.method == "GET":
+        return render_template("item_form.html", item=dict())
 
-    if not person:
-        return "Person not found", 404
+    # POST: assume no bad data
+    new_item = dict(request.form)
+    db.add_item(new_item)
 
-    if request.method == "POST":
-        person['name'] = request.form['name']
-        person['email'] = request.form['email']
-        person['date_of_birth'] = request.form['dob']
-        person['mobile_phone_number'] = request.form['phone']
-        person['role'] = request.form['role']
-        
-        people[person['name']] = person 
-
-        set_people(people)
-        return redirect(url_for('render_people'))
-    else:
-        return render_template('person_form.html', person=person)
+    return redirect(url_for("render_equipment_page"))
 
 
+@app.route("/equipment/<item_id>/edit/", methods=["GET", "POST"])
+def render_edit_equipment(item_id: Optional[str] = None):
+    if request.method == "GET":
+        return render_template("item_form.html", item_id=item_id, item=load_item(item_id))
+
+    # POST
+    updated = dict(request.form)
+
+    # Keep the `id` and `image_path` the same from before.
+    id = db.get_item_id(item_id)
+    print(item_id)
+    db.update_one_item(item_id, updated)
+
+    return redirect(url_for("render_one_item", item_id=item_id))
