@@ -1,29 +1,92 @@
 {% extends "base.html" %}
 
-{% block title %}Person{% endblock %}
+{% set add_or_edit = 'Edit' if item_id else 'Add' %}
+
+{% block title %}{{ add_or_edit }} Item{% endblock %}
 
 {% block content %}
 
-<form name="add_equipment" method="POST">
-    <label for="name">Name</label>
-    <input type="text" id="name" name="name" value="{{ equipment['name'] if equipment else '' }}"><br>
-    <label for="summary">Summary</label>
-    <input type="text" id="summary" name="summary" value="{{ equipment['summary'] if equipment else '' }}"><br>
-    <label for="description">Description</label>
-    <input type="text" id="description" name="description" value="{{ equipment['description'] if equipment else '' }}"><br>
-    <label for="daily_rental_price">Daily Rental Price</label>
-    <input type="number" name="price" id="price" value="{{ equipment['daily_rental_price'] if equipment else 0 }}"><br>
-    <label for="weight">Weight</label>
-    <input type="number" name="weight" id="weight" value="{{ equipment['weight'] if equipment else 0 }}"><br>
-    <label for="purchase_date">Purchase Date</label>
-    <input type="date" name="purchase_date" id="purchase_date" value="{{ equipment['purchase_date'] if equipment else '' }}"><br>
-    <label for="quantity">Quantity</label>
-    <input type="number" name="quantity" id="quantity" value="{{ equipment['quantity'] if equipment else 0 }}"><br>
-    <label for="notes">Notes</label>
-    <input type="text" name="notes" id="notes" value="{{ equipment['notes'] if equipment else '' }}"><br>
-    <input type="submit" value="Save Equipment">
-    <input type="reset">
+<h1>{{ add_or_edit }} Item</h1>
+
+<hr class="border-3">
+
+<form action="" method="post" class="form-floating">
+
+    <div class="form-floating mb-3">
+        <input required type="text" class="form-control" name="name" id="name" placeholder="Name"
+            value="{{ item.name }}">
+        <label for="name">Name</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <input required type="text" class="form-control" name="summary" id="summary" placeholder="summary"
+            value="{{ item.summary }}">
+        <label for="summary">Summary</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <textarea class="form-control" name="description" id="description" placeholder="Description"
+            style="height: 100px">{{ item.description }}</textarea>
+        <label for="description">Description</label>
+    </div>
+
+    <div class="row g-2">
+        <div class="col-md">
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">$</span>
+                <div class="form-floating">
+                    <input required type="number" step="0.01" min="0" class="form-control" name="daily_rental_price"
+                        id="daily_rental_price" placeholder="daily_rental_price" value="{{ item.daily_rental_price }}">
+                    <label for="daily_rental_price">Daily Rental Price</label>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md">
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">lbs</span>
+                <div class="form-floating">
+                    <input required type="number" step="1" min="0" class="form-control" name="weight" id="weight"
+                        placeholder="Weight" value="{{ item.weight }}">
+                    <label for="weight">Weight</label>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row g-2">
+        <div class="col-md">
+            <div class="form-floating mb-3">
+                <input required type="date" class="form-control" name="purchase_date" id="purchase_date"
+                    placeholder="Purchase Date" value="{{ item.purchase_date }}">
+                <label for="purchase_date">Purchase Date</label>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="form-floating mb-3">
+                <input required type="number" step="1" min="0" class="form-control" name="quantity" id="quantity"
+                    placeholder="Quantity" value="{{ item.quantity }}">
+                <label for="quantity">Quantity</label>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="form-floating mb-3">
+        <textarea class="form-control" name="notes" id="notes" placeholder="notes"
+            style="height: 150px">{{ item.notes }}</textarea>
+        <label for="notes">Notes</label>
+    </div>
+
+
+    <div class="my-3">
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="reset" class="btn btn-secondary">Reset</button>
+    </div>
 </form>
 
+
 {% endblock %}
- 

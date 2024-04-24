@@ -1,34 +1,41 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}People{% endblock %}
 
 {% block content %}
 
 <h1>People</h1>
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Date of Birth</th>
-        <th>Phone Number</th>
-        <th>Role</th>
-    </tr>
-    {% for item in people %}
-    <tr>
-        <td>
-            <a href="{{ url_for('render_people', pid=item) }}">
-                {{ people[item]['name'] }}
-            </a>
-        </td>
-        <td>{{ people[item]['email'] }}</td>
-        <td>{{ people[item]['date_of_birth'] }}</td>
-        <td>{{ people[item]['mobile_phone_number'] }}</td>
-        <td>{{ people[item]['role'] }}</td>
-    </tr>
 
-    {%endfor%}
+<hr class="border-3">
 
+<a href="{{ url_for('render_add_person') }}" class="btn btn-primary mb-3">Add a person</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <td>Name</td>
+            <td>email</td>
+            <td>Birthday</td>
+            <td>Phone</td>
+            <td>Role</td>
+        </tr>
+    </thead>
+    <tbody>
+        {% for person in people %}
+        <tr>
+            <td>
+                <a href="{{ url_for('render_one_person', person_id=person['id']) }}">
+                    {{ person['name'] }}
+                </a>
+            </td>
+            <td>{{ person['email'] }}</td>
+            <td>{{ person['date_of_birth'] }}</td>
+            <td>{{ person['mobile_phone_number'] }}</td>
+            <td>{{ person['role'] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
-<a href="{{ url_for('add_person') }}" class="btn btn-primary">Add a Person</a>
+
 
 {% endblock %}
