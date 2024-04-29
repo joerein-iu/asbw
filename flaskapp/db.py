@@ -1,5 +1,5 @@
 from typing import Any, Dict, List
-
+from datetime import date, timedelta
 from pymysql import connect
 from pymysql.cursors import DictCursor
 
@@ -173,7 +173,7 @@ def update_one_item(item_id: int, updated_equipment: Dict[str, Any]) -> None:
                 "good",
                 updated_equipment["notes"],
                 "images/null_image.jpg",
-                1,
+                updated_equipment['currently_available'],
                 item_id,
             )
         )
@@ -192,46 +192,33 @@ def get_due_dates() -> List[Dict[str, Any]]:
     return items
 
 
-def rent_one_item(person_id: int, item_ind: int) -> None:
-    """
-    Inserts appropriate data into the database representing the the person
-    is renting an item.
-
-    TODO(hayesall): This does not validate that an item is `currently_available`.
-        I assume that has already been done elsewhere.
-    """
+def rent_one_item(person_id: int, item_id: int) -> None:
     conn = get_connection()
     with conn.cursor() as curr:
-        curr.execute("insert into i211_rental (person_id, item_id) values (%s, %s)", (person_id, item_ind))
-        curr.execute("update i211_item set currently_available = 0 where id = %s", (item_ind,))
-    conn.commit()
+        curr.execute("SELECT currently_availible FROM i211_item WHERE id = %s", (item_id,))
+        item_available = curr.fetchone()
+        if item_available and item_available['currently_availible']:
+            checkout_date = date.today()
+            due_date = checkout_date + timedelta(days=14)
+            checkout_date_str = checkout_date.isoformat()
+            due_date_str = due_date.isoformat()
+            default_return = "9999-12-31" #maria wouldn't let me alter or drop my tables so here we are
+
+            curr.execute("INSERT INTO i211_rental (person_id, item_id, checkout_date, due_date, return_date) VALUES (%s, %s, %s, %s, %s)", (person_id, item_id, checkout_date_str, due_date_str, default_return))
+            
+            curr.execute("UPDATE i211_item SET currently_availible = 0 WHERE id = %s", (item_id,))
+            conn.commit()
+        else:
+            print("Item is currently not available for rent.")
     conn.close()
 
 
-def return_one_item(item_ind: int):
-    """
-    Updates the database to indicate the item was returned.
-
-    TODO(hayesall): I *think* the updates will fail if this gets called on an
-        invalid `item_id` (e.g. where there is not a NULL return date),
-        but this hasn't been tested thoroughly.
-    """
+def return_one_item(item_id: int) -> None:
     conn = get_connection()
     with conn.cursor() as curr:
-
-        # Since an item cannot be rented out
-        # by multiple people at the same time:
-        # we can update the `rental` table using
-        # an item_id and a NULL value.
-        #
-        # A NULL can become a date, but not the
-        # other way around.
-
-        curr.execute("update i211_rental set return_date = curdate() where return_date is null and item_id = %s", (item_ind,))
-
-        curr.execute("update i211_item set currently_available = 1 where id = %s", (item_ind,))
-
-    conn.commit()
+        curr.execute("UPDATE i211_rental SET return_date = CURDATE() WHERE item_id = %s", (item_id,))
+        curr.execute("UPDATE i211_item SET currently_availible = 1 WHERE id = %s", (item_id,))
+        conn.commit()
     conn.close()
 
 

@@ -120,10 +120,17 @@ def render_one_person(person_id: Optional[str] = None):
 def render_equipment_page():
     return render_template("equipment.html", equipment=load_equipment())
 
-
+@app.route("/equipment/<item_id>/")
 @app.route("/equipment/<item_id>/")
 def render_one_item(item_id: Optional[str] = None):
-    return render_template("item.html", item_id=item_id, item=load_item(item_id))
+    item = load_item(item_id)
+    if not item:
+        return "Item not found", 404 
+    print(item)
+    people = load_people()
+    members = [person for person in people if person["role"] == "member"]
+    return render_template("item.html", item_id=item_id, item=item, members=members)
+
 
 
 @app.route("/equipment/add/", methods=["GET", "POST"])
@@ -152,3 +159,31 @@ def render_edit_equipment(item_id: Optional[str] = None):
     db.update_one_item(item_id, updated)
 
     return redirect(url_for("render_one_item", item_id=item_id))
+
+@app.route("/equipment/<item_id>/rent/", methods=["POST"])
+def rent_item(item_id):
+    member_id = request.form['member_id']
+    db.rent_one_item(member_id, item_id)
+    return redirect(url_for("render_one_item", item_id=item_id))
+
+@app.route("/equipment/<item_id>/return/", methods=["POST"])
+def return_item(item_id):
+    db.return_one_item(item_id)
+    return redirect(url_for("render_one_item", item_id=item_id))
+
+
+
+# @app.route("/equipment/<item_id>/rent/", methods=["POST"])
+# def rent_item(person_id: int, item_id: int):
+#     #uses a query to set an item as unavailable, then sets the due date and the takeout date
+#     #redirects to the item
+
+# @app.route("/equipment/<item_id>/return", methods=["POST"])
+# def return_item(item_id):
+#     #uses a query to set the item as returned
+#     #redirects back to the item
+#     pass
+
+
+#so basically have to add a section in the html for the item to display whether its availible or not availible
+#have to pass the item section the list of members if its not current rented out, 
