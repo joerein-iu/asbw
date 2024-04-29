@@ -10,6 +10,27 @@
 
 <a href="{{ url_for('render_edit_equipment', item_id=item_id) }}" class="btn btn-primary mb-3">Edit details</a>
 
+{% if item['currently_availible'] == '1'%}
+    <form action="{{ url_for('rent_item', item_id=item_id) }}" method="post">
+        <div class="form-group mb-3">
+            <label for="member_id">Choose Member:</label>
+            <select name="member_id" id="member_id" class="form-control">
+                {% for member in members %}
+                    <option value="{{ member['id'] }}">{{ member['name'] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-success">Rent Item</button>
+    </form>
+{% else %}
+    <form action="{{ url_for('return_item', item_id=item_id) }}" method="post">
+        <button type="submit" class="btn btn-warning">Return Item</button>
+    </form>
+    <p>Checked out date: {{ item['purchase_date'] }}</p>
+    <p>Due date: {{ item['due_date'] }}</p>
+{% endif %}
+
+
 <h2 class="my-3">Overview</h2>
 
 <div class="row">
@@ -56,6 +77,11 @@
                         <th scope="row">Notes</th>
                         <td>{{ item['notes'] }}</td>
                     </tr>
+                    <tr>
+                        <th scope="row">available</th>
+                        <td>{{ item['availible'] }}</td>
+                    </tr>
+                    
                 </tbody>
             </table>
         </div>
