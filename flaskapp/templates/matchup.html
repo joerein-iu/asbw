@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Select Teams for Matchup</h1>
+    <form action="/matchup/result" method="post">
+        <label for="home">Home :</label>
+        <select name="home" id="home">
+            {% for team in teams %}
+                <option value="{{ team }}">{{ team }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+        <label for="away">Away :</label>
+        <select name="away" id="away">
+            {% for team in teams %}
+                <option value="{{ team }}">{{ team }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+        <label for="home_line">Home Line:</label>
+        <input type="text" id="home_line" name="home_line">
+        <br><br>
+        <label for="away_line">Away Line:</label>
+        <input type="text" id="away_line" name="away_line">
+        <br><br>
+        <button type="submit">Submit</button>
+    </form>
+{% endblock %}
+

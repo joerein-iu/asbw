@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Matchup Result</h1>
+    <p>Home Team: {{ home_team }} - Score: {{ home_score }}</p>
+    <p>Away Team: {{ away_team }} - Score: {{ away_score }}</p>
+    <p>Probability of Home Team Winning: {{ prob_home_win * 100 }}%</p>
+    <p>Probability of Away Team Winning: {{ prob_away_win * 100 }}%</p>
+    <p>Implied Probability of Home Team Winning (Line {{ home_line }}): {{ implied_home_win * 100 }}%</p>
+    <p>Implied Probability of Away Team Winning (Line {{ away_line }}): {{ implied_away_win * 100 }}%</p>
+    <br>
+    <form action="{{ url_for('render_matchup') }}">
+        <button type="submit">Back</button>
+    </form>
+{% endblock %}
